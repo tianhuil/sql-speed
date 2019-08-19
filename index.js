@@ -1,4 +1,12 @@
-import { Sequelize, STRING, INTEGER } from 'sequelize'
+import { Sequelize, STRING } from 'sequelize'
+
+async function define(sequelize) {
+    const Employee = sequelize.define("Employee", {
+        name: STRING,
+    })
+    await Employee.drop()
+    await sequelize.sync()
+}
 
 async function time(func, obj={}) {
     const startTime = process.hrtime.bigint()
@@ -15,7 +23,7 @@ async function timeMap(func, n, obj={}, objMap={}) {
 
     const resultMap = await time(async () => {
         results = await Promise.all([...Array(n).keys()].map(
-            (i) => time(() => func(i), obj)
+            (i) => time(() => func(i), {i, ...obj})
         ))
     }, objMap)
 
@@ -25,24 +33,31 @@ async function timeMap(func, n, obj={}, objMap={}) {
     ]
 }
 
-async function createMap(n, Employee) {
-    return await timeMap(
+async function crud(n, Employee) {
+    let results = []
+    
+    results.push(await timeMap(
         (i) => Employee.create({ name: `${n}:${i}` }),
         n,
         {name: 'create', n},
         {name: 'createMap', n},
-    )
-}
+    ))
 
-async function getMap(n, Employee) {
-    return await timeMap(
-        (i) => Employee.findOne({
-            where: { name: `${i}` }
-          }),
+    results.push(await timeMap(
+        (i) => Employee.findOne({ where: { name: `${i}` } }),
         n,
-        {name: 'find', n},
-        {name: 'findMap', n},
-    )
+        {name: 'read', n},
+        {name: 'readMap', n},
+    ))
+
+    results.push(await timeMap(
+        (i) => Employee.destroy({ where: { name: `${i}` } }),
+        n,
+        {name: 'delete', n},
+        {name: 'deleteMap', n},
+    ))
+
+    return results
 }
 
 async function timeLog(lengths, func) {
@@ -62,17 +77,12 @@ async function main() {
         operatorsAliases: false,
         logging: false,
     })
-    const Employee = sequelize.define("Employee", {
-        name: STRING,
-    })
-    await Employee.drop()
-    await sequelize.sync()
 
-    const lengths = [10, 20]
-    await timeLog(lengths, n => createMap(n, Employee))
+    await define(sequelize)
+
+    const lengths = [10, 100, 1000, 10000]
+    await timeLog(lengths, n => crud(n, Employee))
     await assertLength(lengths, Employee)
-
-    await timeLog(lengths, n => getMap(n, Employee))
 
     console.warn("Ending Process")
 }
