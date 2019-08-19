@@ -35,7 +35,7 @@ async function createMap(n, Employee) {
 }
 
 async function main() {
-    console.log("Starting Process")
+    console.warn("Starting Process")
     const path = "postgres://pguser:pgpass@localhost:5432/pgdb"
     const sequelize = new Sequelize(path, {
         operatorsAliases: false,
@@ -49,14 +49,13 @@ async function main() {
 
     const lengths = [10, 20]
 
-    const results = await Promise.all(lengths.flatMap(n => createMap(n, Employee)))
-    console.log(JSON.stringify(results))
-
+    const results = await Promise.all(lengths.map(n => createMap(n, Employee)))
+    console.log(JSON.stringify(results.flatMap(x => x)))
 
     const employees = await Employee.findAll()
     console.assert(employees.length == lengths.reduce((a, b) => a + b, 0))
 
-    console.log("Ending Process")
+    console.warn("Ending Process")
 }
 
 main()
