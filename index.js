@@ -34,6 +34,16 @@ async function createMap(n, Employee) {
     )
 }
 
+async function timeLog(lengths, func) {
+    const results = await Promise.all(lengths.map(func))
+    console.log(JSON.stringify(results.flatMap(x => x)))
+}
+
+async function assertLength(lengths, Employee) {
+    const employees = await Employee.findAll()
+    console.assert(employees.length == lengths.reduce((a, b) => a + b, 0))
+}
+
 async function main() {
     console.warn("Starting Process")
     const path = "postgres://pguser:pgpass@localhost:5432/pgdb"
@@ -48,12 +58,8 @@ async function main() {
     await sequelize.sync()
 
     const lengths = [10, 20]
-
-    const results = await Promise.all(lengths.map(n => createMap(n, Employee)))
-    console.log(JSON.stringify(results.flatMap(x => x)))
-
-    const employees = await Employee.findAll()
-    console.assert(employees.length == lengths.reduce((a, b) => a + b, 0))
+    await timeLog(lengths, n => createMap(n, Employee))
+    await assertLength(lengths, Employee)
 
     console.warn("Ending Process")
 }
