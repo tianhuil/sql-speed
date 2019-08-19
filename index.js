@@ -1,15 +1,20 @@
 import { Sequelize, STRING, INTEGER } from 'sequelize'
 
 async function time(func, obj={}) {
-    // const date = new Date()
     const startTime = process.hrtime.bigint()
     const result = await func()
     const endTime = process.hrtime.bigint()
     return {
         ...obj,
-        // result,
         duration: (endTime - startTime).toString(),
     }
+}
+
+async function timeMulti(func, n, obj={}) {
+    let results = await Promise.all([...Array(n).keys()].map(
+        (i) => time(func, obj)
+    ))
+    return results
 }
 
 async function main() {
@@ -25,13 +30,15 @@ async function main() {
     await Employee.drop()
     await sequelize.sync()
 
-    const results = await Promise.all([...Array(50).keys()].map(
-        (i) => time(() => Employee.create({ name: `foo ${i}` }), {name: 'create'})
-    ))
+    const results = await timeMulti(
+        () => Employee.create({ name: `foo` }),
+        20,
+        {name: 'create'},
+    )
     console.log(JSON.stringify(results))
 
     const employees = await Employee.findAll()
-    console.assert(employees.length == 50)
+    console.assert(employees.length == 20)
     console.log("Ending Process")
 }
 
