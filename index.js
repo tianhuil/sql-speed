@@ -1,20 +1,12 @@
 import { Sequelize, STRING } from 'sequelize'
 
-async function define(sequelize) {
-    const Employee = sequelize.define("Employee", {
-        name: STRING,
-    })
-    await Employee.drop()
-    await sequelize.sync()
-}
-
 async function time(func, obj={}) {
     const startTime = process.hrtime.bigint()
     const result = await func()
     const endTime = process.hrtime.bigint()
     return {
         ...obj,
-        duration: (endTime - startTime).toString(),
+        duration: parseInt((endTime - startTime)),
     }
 }
 
@@ -33,7 +25,13 @@ async function timeMap(func, n, obj={}, objMap={}) {
     ]
 }
 
-async function crud(n, Employee) {
+async function crud(n, sequelize) {
+    const Employee = sequelize.define("Employee", {
+        name: STRING,
+    })
+    await Employee.drop()
+    await sequelize.sync()
+
     let results = []
     
     results.push(await timeMap(
@@ -50,24 +48,24 @@ async function crud(n, Employee) {
         {name: 'readMap', n},
     ))
 
+    const employees = await Employee.findAll()
+    console.assert(employees.length == n)
+
     results.push(await timeMap(
-        (i) => Employee.destroy({ where: { name: `${i}` } }),
+        (i) => employees[i].update({ where: { name: `New ${i}` } }),
+        n,
+        {name: 'update', n},
+        {name: 'updateMap', n},
+    ))
+
+    results.push(await timeMap(
+        (i) => Employee.destroy({ where: { name: `New ${i}` } }),
         n,
         {name: 'delete', n},
         {name: 'deleteMap', n},
     ))
 
     return results
-}
-
-async function timeLog(lengths, func) {
-    const results = await Promise.all(lengths.map(func))
-    console.log(JSON.stringify(results.flatMap(x => x)))
-}
-
-async function assertLength(lengths, Employee) {
-    const employees = await Employee.findAll()
-    console.assert(employees.length == lengths.reduce((a, b) => a + b, 0))
 }
 
 async function main() {
@@ -78,11 +76,9 @@ async function main() {
         logging: false,
     })
 
-    await define(sequelize)
-
     const lengths = [10, 100, 1000, 10000]
-    await timeLog(lengths, n => crud(n, Employee))
-    await assertLength(lengths, Employee)
+    const results = await Promise.all(lengths.map((n) => crud(n, sequelize)))
+    console.log(JSON.stringify(results.flatMap(x => x)))
 
     console.warn("Ending Process")
 }
