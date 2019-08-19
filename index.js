@@ -15,7 +15,7 @@ async function timeMap(func, n, obj={}, objMap={}) {
 
     const resultMap = await time(async () => {
         results = await Promise.all([...Array(n).keys()].map(
-            (i) => time(func, obj)
+            (i) => time(() => func(i), obj)
         ))
     }, objMap)
 
@@ -27,10 +27,21 @@ async function timeMap(func, n, obj={}, objMap={}) {
 
 async function createMap(n, Employee) {
     return await timeMap(
-        () => Employee.create({ name: `foo` }),
+        (i) => Employee.create({ name: `${n}:${i}` }),
         n,
         {name: 'create', n},
         {name: 'createMap', n},
+    )
+}
+
+async function getMap(n, Employee) {
+    return await timeMap(
+        (i) => Employee.findOne({
+            where: { name: `${i}` }
+          }),
+        n,
+        {name: 'find', n},
+        {name: 'findMap', n},
     )
 }
 
@@ -60,6 +71,8 @@ async function main() {
     const lengths = [10, 20]
     await timeLog(lengths, n => createMap(n, Employee))
     await assertLength(lengths, Employee)
+
+    await timeLog(lengths, n => getMap(n, Employee))
 
     console.warn("Ending Process")
 }
