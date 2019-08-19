@@ -25,6 +25,20 @@ async function timeMap(func, n, obj={}, objMap={}) {
     ]
 }
 
+async function createMap(n, Employee) {
+    const results = await timeMap(
+        () => Employee.create({ name: `foo` }),
+        n,
+        {name: 'create', n},
+        {name: 'createMap', n},
+    )
+
+    const employees = await Employee.findAll()
+    console.assert(employees.length == n)
+
+    return results
+}
+
 async function main() {
     console.log("Starting Process")
     const path = "postgres://pguser:pgpass@localhost:5432/pgdb"
@@ -38,16 +52,9 @@ async function main() {
     await Employee.drop()
     await sequelize.sync()
 
-    const results = await timeMap(
-        () => Employee.create({ name: `foo` }),
-        20,
-        {name: 'create'},
-        {name: 'createMap'},
-    )
+    const results = await createMap(20, Employee)
     console.log(JSON.stringify(results))
 
-    const employees = await Employee.findAll()
-    console.assert(employees.length == 20)
     console.log("Ending Process")
 }
 
