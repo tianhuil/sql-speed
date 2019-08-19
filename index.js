@@ -26,17 +26,12 @@ async function timeMap(func, n, obj={}, objMap={}) {
 }
 
 async function createMap(n, Employee) {
-    const results = await timeMap(
+    return await timeMap(
         () => Employee.create({ name: `foo` }),
         n,
         {name: 'create', n},
         {name: 'createMap', n},
     )
-
-    const employees = await Employee.findAll()
-    console.assert(employees.length == n)
-
-    return results
 }
 
 async function main() {
@@ -46,14 +41,20 @@ async function main() {
         operatorsAliases: false,
         logging: true,
     })
-    let Employee = sequelize.define("Employee", {
+    const Employee = sequelize.define("Employee", {
         name: STRING,
     })
     await Employee.drop()
     await sequelize.sync()
 
-    const results = await createMap(20, Employee)
+    const lengths = [10, 20]
+
+    const results = await Promise.all(lengths.flatMap(n => createMap(n, Employee)))
     console.log(JSON.stringify(results))
+
+
+    const employees = await Employee.findAll()
+    console.assert(employees.length == lengths.reduce((a, b) => a + b, 0))
 
     console.log("Ending Process")
 }
