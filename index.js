@@ -10,11 +10,19 @@ async function time(func, obj={}) {
     }
 }
 
-async function timeMulti(func, n, obj={}) {
-    let results = await Promise.all([...Array(n).keys()].map(
-        (i) => time(func, obj)
-    ))
-    return results
+async function timeMap(func, n, obj={}, objMap={}) {
+    let results
+
+    const resultMap = await time(async () => {
+        results = await Promise.all([...Array(n).keys()].map(
+            (i) => time(func, obj)
+        ))
+    }, objMap)
+
+    return [
+        ...results,
+        resultMap
+    ]
 }
 
 async function main() {
@@ -30,10 +38,11 @@ async function main() {
     await Employee.drop()
     await sequelize.sync()
 
-    const results = await timeMulti(
+    const results = await timeMap(
         () => Employee.create({ name: `foo` }),
         20,
         {name: 'create'},
+        {name: 'createMap'},
     )
     console.log(JSON.stringify(results))
 
