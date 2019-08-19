@@ -14,5 +14,10 @@
     "sequelize-typescript": "^1.0.0-beta.4",
     "ts-node": "^8.3.0",
     "typescript": "^3.5.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/node": "^7.5.5",
+    "@babel/preset-env": "^7.5.5"
   }
 }
