@@ -39,7 +39,7 @@ async function main() {
     const path = "postgres://pguser:pgpass@localhost:5432/pgdb"
     const sequelize = new Sequelize(path, {
         operatorsAliases: false,
-        logging: true,
+        logging: false,
     })
     const Employee = sequelize.define("Employee", {
         name: STRING,
