@@ -34,14 +34,14 @@ async function crud(n, sequelize) {
 
     let results = []
     
-    results.push(await timeMap(
+    results.push(...await timeMap(
         (i) => Employee.create({ name: `${n}:${i}` }),
         n,
         {name: 'create', n},
         {name: 'createMap', n},
     ))
 
-    results.push(await timeMap(
+    results.push(...await timeMap(
         (i) => Employee.findOne({ where: { name: `${i}` } }),
         n,
         {name: 'read', n},
@@ -51,14 +51,14 @@ async function crud(n, sequelize) {
     const employees = await Employee.findAll()
     console.assert(employees.length == n)
 
-    results.push(await timeMap(
+    results.push(...await timeMap(
         (i) => employees[i].update({ where: { name: `New ${i}` } }),
         n,
         {name: 'update', n},
         {name: 'updateMap', n},
     ))
 
-    results.push(await timeMap(
+    results.push(...await timeMap(
         (i) => Employee.destroy({ where: { name: `New ${i}` } }),
         n,
         {name: 'delete', n},
