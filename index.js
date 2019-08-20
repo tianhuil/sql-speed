@@ -76,8 +76,8 @@ async function main() {
         logging: false,
     })
 
-    const lengths = [10, 100, 1000, 10000]
-    const replications = 40
+    const replications = Number(process.argv[2])
+    const lengths = process.argv[3].split(',').map(Number)
     const ns = [...Array(replications).keys()].flatMap((_) => lengths)
 
     const results = []
