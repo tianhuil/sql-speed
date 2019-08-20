@@ -49,6 +49,7 @@ async function crud(n, sequelize) {
     ))
 
     const employees = await Employee.findAll()
+    console.log(employees)
     console.assert(employees.length == n)
 
     results.push(await timeMap(
@@ -73,12 +74,21 @@ async function main() {
     const path = "postgres://pguser:pgpass@localhost:5432/pgdb"
     const sequelize = new Sequelize(path, {
         operatorsAliases: false,
-        logging: false,
+        logging: true,
     })
+
+    // const lengths = [2, 3]  //, 1000, 10000]
+    // const replications = 2
+    // const ns = [...Array(replications).keys()].flatMap((_) => lengths)
+    // for (const n in ns) {
+    //     await crud(n, sequelize)
+    // }
 
     const lengths = [10, 100, 1000, 10000]
     const results = await Promise.all(lengths.map((n) => crud(n, sequelize)))
     console.log(JSON.stringify(results.flatMap(x => x)))
+    
+    // console.log(JSON.stringify(results.flatMap(x => x)))
 
     console.warn("Ending Process")
 }
