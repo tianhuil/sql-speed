@@ -11,7 +11,7 @@ async function time(func, obj={}) {
 }
 
 async function timeMap(func, n, obj={}, objMap={}) {
-    let results
+    let results = []
 
     const resultMap = await time(async () => {
         results = await Promise.all([...Array(n).keys()].map(
@@ -49,7 +49,6 @@ async function crud(n, sequelize) {
     ))
 
     const employees = await Employee.findAll()
-    console.log(employees)
     console.assert(employees.length == n)
 
     results.push(await timeMap(
@@ -74,21 +73,23 @@ async function main() {
     const path = "postgres://pguser:pgpass@localhost:5432/pgdb"
     const sequelize = new Sequelize(path, {
         operatorsAliases: false,
-        logging: true,
+        logging: false,
     })
 
-    // const lengths = [2, 3]  //, 1000, 10000]
-    // const replications = 2
-    // const ns = [...Array(replications).keys()].flatMap((_) => lengths)
-    // for (const n in ns) {
-    //     await crud(n, sequelize)
-    // }
-
     const lengths = [10, 100, 1000, 10000]
-    const results = await Promise.all(lengths.map((n) => crud(n, sequelize)))
-    console.log(JSON.stringify(results.flatMap(x => x)))
+    const replications = 40
+    const ns = [...Array(replications).keys()].flatMap((_) => lengths)
+
+    const results = []
+    try {
+        for (const n of ns) {
+            results.push(await crud(n, sequelize))
+        }
+    } catch(e) {
+        console.log(e)
+    }
     
-    // console.log(JSON.stringify(results.flatMap(x => x)))
+    console.log(JSON.stringify(results.flatMap(x => x)))
 
     console.warn("Ending Process")
 }
