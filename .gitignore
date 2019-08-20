@@ -62,7 +62,7 @@ typings/
 
 # Python
 *.py[co]
-venv/
+env/
 
 # Data
 results/
