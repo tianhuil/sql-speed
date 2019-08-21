@@ -67,7 +67,10 @@ async function crud(qps, duration, sequelize) {
     ))
 
     results.push(...await timeMap(
-        (i) => Employee.findOne({ where: { name: `${qps}:${i}` } }),
+        async (i) => {
+            const employee = await Employee.findOne({ where: { name: `${qps}:${i}` } })
+            console.assert(employee.id)
+        },
         qts,
         {name: 'read', qps},
         {name: 'readMap', qps},
