@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npx babel-node index.js 2 2,3 > data.json",
-    "run": "npx babel-node index.js 50 10,100,1000,10000 > data.json"
+    "run": "npx babel-node index.js 5 10,100,1000 > data.json"
   },
   "author": "",
   "license": "ISC",
