@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npx babel-node index.js 2 2,3 > data.json",
+    "test": "npx babel-node index.js 0.2 10,20 > data.json",
     "run": "npx babel-node index.js 5 10,33,100,333,1000 > data.json"
   },
   "author": "",
