@@ -23,7 +23,7 @@ async function timeMap(func, queryTimes, obj={}, objMap={}) {
                     await sleep(ms)
                     return time(
                         () => func(i),
-                        { i, ...obj }
+                        { ms, i, ...obj }
                     )
                 }
             )
