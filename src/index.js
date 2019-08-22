@@ -23,17 +23,18 @@ async function main() {
     const dbs = [new MySQL(), new Postgres()]
     await Promise.all(dbs.map(db => db.initialize()))
 
-    try {
-        for (const qps of qpz) {
-            for (const db of dbs) {
+    for (const qps of qpz) {
+        for (const db of dbs) {
+            try {
                 await db.initializeModel(db)
                 const metadata = { ...db.metadata, qps }
                 results.push(await crud(queryTimes(qps, duration), metadata, db.Model))    
+            } catch (e) {
+                console.warn(e)
             }
         }
-    } catch (e) {
-        console.log(e)
     }
+
 
     console.log(JSON.stringify(results.flatMap(x => x)))
 
