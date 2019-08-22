@@ -1,40 +1,5 @@
 import { Sequelize, STRING } from 'sequelize'
-import { promisify } from 'util'
-
-async function time(func, obj={}) {
-    const startTime = process.hrtime.bigint()
-    const result = await func()
-    const endTime = process.hrtime.bigint()
-    return {
-        ...obj,
-        duration: parseInt((endTime - startTime)),
-    }
-}
-
-const sleep = promisify(setTimeout)
-
-async function timeMap(func, queryTimes, obj={}, objMap={}) {
-    let results
-    
-    const resultMap = await time(async () => {
-        results = await Promise.all(
-            queryTimes.map(
-                async (ms, i) => {
-                    await sleep(ms)
-                    return time(
-                        () => func(i),
-                        { ms, i, ...obj }
-                    )
-                }
-            )
-        )
-    }, objMap)
-
-    return [
-        ...results,
-        resultMap
-    ]
-}
+import { crud } from './timing'
 
 /**
  * Return times to run queries
@@ -48,52 +13,13 @@ function queryTimes(qps, duration) {
     return [...Array(length).keys()].map(i => i * unit)
 }
 
-async function crud(qps, duration, sequelize) {
+async function initializeModel(sequelize) {
     const Employee = sequelize.define("Employee", {
         name: STRING,
     })
     await Employee.drop()
     await sequelize.sync()
-
-    let results = []
-
-    const qts = queryTimes(qps, duration)
-    
-    results.push(...await timeMap(
-        (i) => Employee.create({ name: `${qps}:${i}` }),
-        qts,
-        {name: 'create', qps},
-        {name: 'createMap', qps},
-    ))
-
-    results.push(...await timeMap(
-        async (i) => {
-            const employee = await Employee.findOne({ where: { name: `${qps}:${i}` } })
-            console.assert(employee.id)
-        },
-        qts,
-        {name: 'read', qps},
-        {name: 'readMap', qps},
-    ))
-
-    const employees = await Employee.findAll()
-    console.assert(employees.length == qts.length)
-
-    results.push(...await timeMap(
-        (i) => employees[i].update({ where: { name: `New ${i}` } }),
-        qts,
-        {name: 'update', qps},
-        {name: 'updateMap', qps},
-    ))
-
-    results.push(...await timeMap(
-        (i) => Employee.destroy({ where: { name: `New ${i}` } }),
-        qts,
-        {name: 'delete', qps},
-        {name: 'deleteMap', qps},
-    ))
-
-    return results
+    return Employee
 }
 
 async function main() {
@@ -110,7 +36,8 @@ async function main() {
 
     try {
         for (const qps of qpz) {
-            results.push(await crud(qps, duration, sequelize))
+            const Employee = await initializeModel(sequelize)
+            results.push(await crud(queryTimes(qps, duration), qps, Employee))
         }
     } catch (e) {
         console.log(e)
