@@ -1,5 +1,5 @@
-import { Sequelize, STRING } from 'sequelize'
 import { crud } from './timing'
+import { initializePostgres, initializeMySQL, initializeModel } from './db'
 
 /**
  * Return times to run queries
@@ -13,30 +13,19 @@ function queryTimes(qps, duration) {
     return [...Array(length).keys()].map(i => i * unit)
 }
 
-async function initializeModel(sequelize) {
-    const Employee = sequelize.define("Employee", {
-        name: STRING,
-    })
-    await Employee.drop()
-    await sequelize.sync()
-    return Employee
-}
-
 async function main() {
     console.warn("Starting Process")
-    const path = "postgres://pguser:pgpass@localhost:5432/pgdb"
-    const sequelize = new Sequelize(path, {
-        operatorsAliases: false,
-        logging: false,
-    })
 
     const duration = Number(process.argv[2])
     const qpz = process.argv[3].split(',').map(Number)
     const results = []
 
+    const db = await initializeMySQL()
+    // const db = initializePostgres()
+
     try {
         for (const qps of qpz) {
-            const Employee = await initializeModel(sequelize)
+            const Employee = await initializeModel(db)
             results.push(await crud(queryTimes(qps, duration), qps, Employee))
         }
     } catch (e) {

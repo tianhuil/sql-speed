@@ -3,6 +3,7 @@ services:
   postgres:
     image: "postgres:11-alpine"
     container_name: "postgres"
+    restart: always
     ports:
       - "5432:5432"
     volumes:
@@ -11,5 +12,13 @@ services:
       POSTGRES_USER: pguser
       POSTGRES_PASSWORD: pgpass
       POSTGRES_DB: pgdb
+  mysql:
+    image: "mysql:8"
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - 3306:3306
 volumes:
   postgres-vol:
