@@ -1,30 +1,48 @@
 import { Sequelize, STRING } from 'sequelize'
 
-export async function initializeModel(db) {
-    const Employee = db.define("Employee", {
-        name: STRING,
-    })
-    await Employee.drop()
-    await db.sync()
-    return Employee
+class Database {
+    constructor(path, metadata) {
+        this.path = path
+        this.metadata = metadata
+        this.sequelize = null
+        this.Model = null
+    }
+
+    async initialize() {
+        this.sequelize = new Sequelize(this.path, {
+            operatorsAliases: false,
+            logging: false,
+        })
+    }
+
+    async initializeModel() {
+        this.Model = this.sequelize.define("Employee", {
+            name: STRING,
+        })
+        await this.Model.drop()
+        await this.sequelize.sync()
+    }
 }
 
-function initializeDB(path) {
-    const sequelize = new Sequelize(path, {
-        operatorsAliases: false,
-        logging: false,
-    })
-    return sequelize
+export class Postgres extends Database {
+    constructor() {
+        super("postgres://pguser:pgpass@localhost:5432/pgdb", { db: "postgres", env: "docker" })
+    }
 }
 
-export const initializePostgres = async () => initializeDB("postgres://pguser:pgpass@localhost:5432/pgdb")
+export class MySQL extends Database {
+    constructor() {
+        super("mysql://root:rootpass@localhost:3306/testdb", { db: "mysql", env: "docker" })
+    }
 
-export const initializeMySQL = async () => {
-    // hack to create a DB
-    const sequelize = new Sequelize("", "root", "rootpass", {
-        dialect: "mysql",
-        logging: false
-    })
-    await sequelize.query("CREATE DATABASE IF NOT EXISTS testdb;")
-    return initializeDB("mysql://root:rootpass@localhost:3306/testdb")
+    async initialize() {
+        // hack to create a DB
+        const sequelize = new Sequelize("", "root", "rootpass", {
+            dialect: "mysql",
+            logging: false
+        })
+        await sequelize.query("CREATE DATABASE IF NOT EXISTS testdb;")
+
+        super.initialize()
+    }
 }

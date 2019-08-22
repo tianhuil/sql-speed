@@ -1,5 +1,5 @@
 import { crud } from './timing'
-import { initializePostgres, initializeMySQL, initializeModel } from './db'
+import { Postgres, MySQL } from './db'
 
 /**
  * Return times to run queries
@@ -20,13 +20,16 @@ async function main() {
     const qpz = process.argv[3].split(',').map(Number)
     const results = []
 
-    const db = await initializeMySQL()
-    // const db = initializePostgres()
+    const dbs = [new MySQL(), new Postgres()]
+    await Promise.all(dbs.map(db => db.initialize()))
 
     try {
         for (const qps of qpz) {
-            const Employee = await initializeModel(db)
-            results.push(await crud(queryTimes(qps, duration), qps, Employee))
+            for (const db of dbs) {
+                await db.initializeModel(db)
+                const metadata = { ...db.metadata, qps }
+                results.push(await crud(queryTimes(qps, duration), metadata, db.Model))    
+            }
         }
     } catch (e) {
         console.log(e)
