@@ -41,8 +41,8 @@ export async function crud(queryTimes, metadata, Model) {
     results.push(...await timeMap(
         (i) => Model.create({ name: `${i}` }),
         queryTimes,
-        {...metadata, name: 'create'},
-        {...metadata, name: 'createMap'},
+        {...metadata, action: 'create'},
+        {...metadata, action: 'createMap'},
     ))
 
     results.push(...await timeMap(
@@ -51,8 +51,8 @@ export async function crud(queryTimes, metadata, Model) {
             console.assert(employee.id)
         },
         queryTimes,
-        {...metadata, name: 'read'},
-        {...metadata, name: 'readMap'},
+        {...metadata, action: 'read'},
+        {...metadata, action: 'readMap'},
     ))
 
     console.assert((await Model.findAll()).length == queryTimes.length)
@@ -63,15 +63,15 @@ export async function crud(queryTimes, metadata, Model) {
             { where: { name: `${i}` } },
         ),
         queryTimes,
-        {...metadata, name: 'update'},
-        {...metadata, name: 'updateMap'},
+        {...metadata, action: 'update'},
+        {...metadata, action: 'updateMap'},
     ))
 
     results.push(...await timeMap(
         (i) => Model.destroy({ where: { name: `New ${i}` } }),
         queryTimes,
-        {...metadata, name: 'delete'},
-        {...metadata, name: 'deleteMap'},
+        {...metadata, action: 'delete'},
+        {...metadata, action: 'deleteMap'},
     ))
 
     console.assert((await Model.findAll()).length == 0)
