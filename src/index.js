@@ -1,3 +1,5 @@
+import 'core-js/stable'
+import 'regenerator-runtime/runtime'
 import { crud } from './timing'
 import { Postgres, MySQL } from './db'
 
