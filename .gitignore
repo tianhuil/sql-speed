@@ -64,6 +64,3 @@ typings/
 *.py[co]
 env/
 .ipynb_checkpoints/
-
-# Data
-results/
