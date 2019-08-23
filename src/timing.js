@@ -35,11 +35,11 @@ async function timeMap(func, queryTimes, obj={}, objMap={}) {
     ]
 }
 
-export async function crud(queryTimes, metadata, Employee) {
+export async function crud(queryTimes, metadata, Model) {
     let results = []
     
     results.push(...await timeMap(
-        (i) => Employee.create({ name: `${i}` }),
+        (i) => Model.create({ name: `${i}` }),
         queryTimes,
         {...metadata, name: 'create'},
         {...metadata, name: 'createMap'},
@@ -47,7 +47,7 @@ export async function crud(queryTimes, metadata, Employee) {
 
     results.push(...await timeMap(
         async (i) => {
-            const employee = await Employee.findOne({ where: { name: `${i}` } })
+            const employee = await Model.findOne({ where: { name: `${i}` } })
             console.assert(employee.id)
         },
         queryTimes,
@@ -55,22 +55,26 @@ export async function crud(queryTimes, metadata, Employee) {
         {...metadata, name: 'readMap'},
     ))
 
-    const employees = await Employee.findAll()
-    console.assert(employees.length == queryTimes.length)
+    console.assert((await Model.findAll()).length == queryTimes.length)
 
     results.push(...await timeMap(
-        (i) => employees[i].update({ where: { name: `New ${i}` } }),
+        (i) => Model.update(
+            { name: `New ${i}` },
+            { where: { name: `${i}` } },
+        ),
         queryTimes,
         {...metadata, name: 'update'},
         {...metadata, name: 'updateMap'},
     ))
 
     results.push(...await timeMap(
-        (i) => Employee.destroy({ where: { name: `New ${i}` } }),
+        (i) => Model.destroy({ where: { name: `New ${i}` } }),
         queryTimes,
         {...metadata, name: 'delete'},
         {...metadata, name: 'deleteMap'},
     ))
+
+    console.assert((await Model.findAll()).length == 0)
 
     return results
 }
