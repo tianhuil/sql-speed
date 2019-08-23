@@ -38,7 +38,6 @@ async function main() {
         }
     }
 
-
     console.log(JSON.stringify(results.flatMap(x => x)))
 
     console.warn("Ending Process")
