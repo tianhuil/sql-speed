@@ -36,10 +36,17 @@ async function timeMap(func, queryTimes, obj={}, objMap={}) {
 }
 
 export async function crud(queryTimes, metadata, db) {
-    const { Employee } = await db.initializeModels()
+    const { Employee, Company } = await db.initializeModels()
 
-    let results = []
+    return [
+        ... await singleObjectCrud(queryTimes, metadata, Employee),
+        ... await doubleObjectCrud(queryTimes, metadata, Employee, Company),
+    ]
+}
     
+async function singleObjectCrud(queryTimes, metadata, Employee) {
+    let results = []
+
     results.push(...await timeMap(
         (i) => Employee.create({ name: `${i}` }),
         queryTimes,
@@ -80,9 +87,7 @@ export async function crud(queryTimes, metadata, db) {
     return results
 }
 
-export async function crud2(queryTimes, metadata, db) {
-    const { Employee, Company } = await db.initializeModels()
-
+async function doubleObjectCrud(queryTimes, metadata, Employee, Company) {
     let results = []
 
     results.push(...await timeMap(
