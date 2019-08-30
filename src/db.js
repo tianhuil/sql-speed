@@ -1,4 +1,8 @@
-import { Sequelize, STRING } from 'sequelize'
+import { Sequelize, STRING, Model } from 'sequelize'
+
+class Employee extends Model {}
+
+class Company extends Model {}
 
 class Database {
     constructor(path, metadata) {
@@ -15,13 +19,13 @@ class Database {
     }
 
     async initializeModels() {
-        const Employee = this.sequelize.define("Employee", {
+        Employee.init({
             name: STRING,
-        })
-        const Company = this.sequelize.define("Company", {
+        }, { sequelize: this.sequelize, modelName: 'employee'})
+        Company.init({
             name: STRING,
-        })
-        Employee.belongsTo(Company)
+        }, { sequelize: this.sequelize, modelName: 'company'})
+        Employee.Company = Employee.belongsTo(Company)
         await Employee.drop()
         await Company.drop()
         await this.sequelize.sync()

@@ -36,7 +36,7 @@ async function timeMap(func, queryTimes, obj={}, objMap={}) {
 }
 
 export async function crud(queryTimes, metadata, db) {
-    const { Employee } = await db.initializeModels()
+    const { Employee, Company } = await db.initializeModels()
 
     let results = []
     
@@ -77,6 +77,23 @@ export async function crud(queryTimes, metadata, db) {
     ))
 
     console.assert((await Employee.findAll()).length == 0)
+
+    results.push(...await timeMap(
+        (i) => Employee.create({
+            name: `${i}`,
+            company: { name: `${i}`}
+        }, {
+            include: [{
+                association: Employee.Company,
+            }]
+        }),
+        queryTimes,
+        {...metadata, action: 'create2'},
+        {...metadata, action: 'create2Map'},
+    ))
+
+    console.assert((await Employee.findAll()).length == queryTimes.length)
+    console.assert((await Company.findAll()).length == queryTimes.length)
 
     return results
 }
