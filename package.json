@@ -18,6 +18,9 @@
     "sequelize": "^5.15.0",
     "braces": ">=2.3.1"
   },
+  "dependencyComments": {
+    "braces": "Just to fix a bug"
+  },
   "devDependencies": {
     "@babel/core": "^7.5.5",
     "@babel/node": "^7.5.5",
