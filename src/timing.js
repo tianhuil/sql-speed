@@ -36,7 +36,7 @@ async function timeMap(func, queryTimes, obj={}, objMap={}) {
 }
 
 export async function crud(queryTimes, metadata, db) {
-    const { Employee, Company } = await db.initializeModels()
+    const { Employee } = await db.initializeModels()
 
     let results = []
     
@@ -47,6 +47,8 @@ export async function crud(queryTimes, metadata, db) {
         {...metadata, action: 'createMap'},
     ))
 
+    console.assert((await Employee.findAll()).length == queryTimes.length)
+
     results.push(...await timeMap(
         async (i) => {
             const employee = await Employee.findOne({ where: { name: `${i}` } })
@@ -56,8 +58,6 @@ export async function crud(queryTimes, metadata, db) {
         {...metadata, action: 'read'},
         {...metadata, action: 'readMap'},
     ))
-
-    console.assert((await Employee.findAll()).length == queryTimes.length)
 
     results.push(...await timeMap(
         (i) => Employee.update(
@@ -77,6 +77,13 @@ export async function crud(queryTimes, metadata, db) {
     ))
 
     console.assert((await Employee.findAll()).length == 0)
+    return results
+}
+
+export async function crud2(queryTimes, metadata, db) {
+    const { Employee, Company } = await db.initializeModels()
+
+    let results = []
 
     results.push(...await timeMap(
         (i) => Employee.create({
@@ -94,6 +101,38 @@ export async function crud(queryTimes, metadata, db) {
 
     console.assert((await Employee.findAll()).length == queryTimes.length)
     console.assert((await Company.findAll()).length == queryTimes.length)
+
+    results.push(...await timeMap(
+        async (i) => {
+            const employee = await Employee.findOne({
+                where: { name: `${i}` },
+                include: [{
+                    model: Company
+                }]
+            })
+            console.assert(employee.id)
+            console.assert(employee.company.id)
+        },
+        queryTimes,
+        {...metadata, action: 'read2a'},
+        {...metadata, action: 'read2aMap'},
+    ))
+
+    results.push(...await timeMap(
+        async (i) => {
+            const employee = await Employee.findOne({
+                include: [{
+                    model: Company,
+                    where: { name: `${i}` }
+                }]
+            })
+            console.assert(employee.id)
+            console.assert(employee.company.id)
+        },
+        queryTimes,
+        {...metadata, action: 'read2b'},
+        {...metadata, action: 'read2bMap'},
+    ))
 
     return results
 }

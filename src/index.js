@@ -1,6 +1,6 @@
 import 'core-js/stable'
 import 'regenerator-runtime/runtime'
-import { crud } from './timing'
+import { crud, crud2 } from './timing'
 import { Postgres, MySQL } from './db'
 
 /**
@@ -29,7 +29,8 @@ async function main() {
         for (const db of dbs) {
             const metadata = { ...db.metadata, qps }
             try {
-                results.push(await crud(queryTimes(qps, duration), metadata, db))    
+                results.push(await crud(queryTimes(qps, duration), metadata, db))   
+                results.push(await crud2(queryTimes(qps, duration), metadata, db))
             } catch (e) {
                 console.warn("Encountered Error on iteration", metadata)
                 console.warn(e)
