@@ -1,7 +1,6 @@
 import { Sequelize, STRING, Model } from 'sequelize'
 
 class Employee extends Model {}
-
 class Company extends Model {}
 
 class Database {
@@ -45,7 +44,7 @@ export class MySQL extends Database {
   }
 
   async initialize() {
-    // hack to create a DB
+    // hack to create testdb
     const sequelize = new Sequelize("", "root", "rootpass", {
       dialect: "mysql",
       logging: false
