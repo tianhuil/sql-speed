@@ -35,7 +35,9 @@ async function timeMap(func, queryTimes, obj={}, objMap={}) {
     ]
 }
 
-export async function crud(queryTimes, metadata, Model) {
+export async function crud(queryTimes, metadata, db) {
+    const Model = await db.initializeModel()
+
     let results = []
     
     results.push(...await timeMap(

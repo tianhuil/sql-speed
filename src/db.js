@@ -5,7 +5,6 @@ class Database {
         this.path = path
         this.metadata = metadata
         this.sequelize = null
-        this.Model = null
     }
 
     async initialize() {
@@ -16,11 +15,12 @@ class Database {
     }
 
     async initializeModel() {
-        this.Model = this.sequelize.define("Employee", {
+        const Model = this.sequelize.define("Employee", {
             name: STRING,
         })
-        await this.Model.drop()
+        await Model.drop()
         await this.sequelize.sync()
+        return Model
     }
 }
 
