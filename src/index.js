@@ -29,7 +29,7 @@ async function main() {
         for (const db of dbs) {
             const metadata = { ...db.metadata, qps }
             try {
-                await db.initializeModel(db)
+                await db.initializeModel()
                 results.push(await crud(queryTimes(qps, duration), metadata, db.Model))    
             } catch (e) {
                 console.warn("Encountered Error on iteration", metadata)
