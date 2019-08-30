@@ -14,13 +14,18 @@ class Database {
         })
     }
 
-    async initializeModel() {
-        const Model = this.sequelize.define("Employee", {
+    async initializeModels() {
+        const Employee = this.sequelize.define("Employee", {
             name: STRING,
         })
-        await Model.drop()
+        const Company = this.sequelize.define("Company", {
+            name: STRING,
+        })
+        Employee.belongsTo(Company)
+        await Employee.drop()
+        await Company.drop()
         await this.sequelize.sync()
-        return Model
+        return { Employee, Company }
     }
 }
 

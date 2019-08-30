@@ -36,12 +36,12 @@ async function timeMap(func, queryTimes, obj={}, objMap={}) {
 }
 
 export async function crud(queryTimes, metadata, db) {
-    const Model = await db.initializeModel()
+    const { Employee } = await db.initializeModels()
 
     let results = []
     
     results.push(...await timeMap(
-        (i) => Model.create({ name: `${i}` }),
+        (i) => Employee.create({ name: `${i}` }),
         queryTimes,
         {...metadata, action: 'create'},
         {...metadata, action: 'createMap'},
@@ -49,7 +49,7 @@ export async function crud(queryTimes, metadata, db) {
 
     results.push(...await timeMap(
         async (i) => {
-            const employee = await Model.findOne({ where: { name: `${i}` } })
+            const employee = await Employee.findOne({ where: { name: `${i}` } })
             console.assert(employee.id)
         },
         queryTimes,
@@ -57,10 +57,10 @@ export async function crud(queryTimes, metadata, db) {
         {...metadata, action: 'readMap'},
     ))
 
-    console.assert((await Model.findAll()).length == queryTimes.length)
+    console.assert((await Employee.findAll()).length == queryTimes.length)
 
     results.push(...await timeMap(
-        (i) => Model.update(
+        (i) => Employee.update(
             { name: `New ${i}` },
             { where: { name: `${i}` } },
         ),
@@ -70,13 +70,13 @@ export async function crud(queryTimes, metadata, db) {
     ))
 
     results.push(...await timeMap(
-        (i) => Model.destroy({ where: { name: `New ${i}` } }),
+        (i) => Employee.destroy({ where: { name: `New ${i}` } }),
         queryTimes,
         {...metadata, action: 'delete'},
         {...metadata, action: 'deleteMap'},
     ))
 
-    console.assert((await Model.findAll()).length == 0)
+    console.assert((await Employee.findAll()).length == 0)
 
     return results
 }
