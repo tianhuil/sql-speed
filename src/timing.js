@@ -76,6 +76,8 @@ async function singleObjectCrud(queryTimes, metadata, Employee) {
         {...metadata, action: 'updateMap'},
     ))
 
+    console.assert((await Employee.findAll()).every((e) => e.name.startsWith('New ')))
+
     results.push(...await timeMap(
         (i) => Employee.destroy({ where: { name: `New ${i}` } }),
         queryTimes,
