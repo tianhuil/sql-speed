@@ -14,7 +14,6 @@ class Database {
   async initialize() {
     const options = {
       ...this.sequelizeOptions,
-      operatorsAliases: false,
       logging: false,
     }
 
