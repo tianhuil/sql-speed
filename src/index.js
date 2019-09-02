@@ -1,9 +1,11 @@
 import 'core-js/stable'
 import 'regenerator-runtime/runtime'
+
+require('dotenv').config()
+
 import { crud } from './timing'
 import { Postgres, MySQL, DOPostgres } from './db'
 
-require('dotenv').config()
 
 /**
  * Return times to run queries
