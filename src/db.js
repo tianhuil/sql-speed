@@ -12,13 +12,13 @@ class Database {
   }
 
   async initialize() {
-    const dialectOptions = {
+    const options = {
       ...this.sequelizeOptions,
       operatorsAliases: false,
       logging: false,
     }
 
-    this.sequelize = new Sequelize(this.path, dialectOptions)
+    this.sequelize = new Sequelize(this.path, options)
   }
 
   async initializeModels() {
