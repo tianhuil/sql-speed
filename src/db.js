@@ -77,3 +77,19 @@ export class MySQL extends Database {
     super.initialize()
   }
 }
+
+export class DOMySQL extends Database {
+  constructor() {
+    super(
+      process.env["DO_MYSQL_URL"],
+      { db: "mysql", env: "do" },
+      { 
+        dialectOptions: {
+          ssl: {
+            rejectUnauthorized: false
+          }
+        }
+      }
+    )
+  }
+}
