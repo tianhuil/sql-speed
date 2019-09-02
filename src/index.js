@@ -1,7 +1,9 @@
 import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 import { crud } from './timing'
-import { Postgres, MySQL } from './db'
+import { Postgres, MySQL, DOPostgres } from './db'
+
+require('dotenv').config()
 
 /**
  * Return times to run queries
@@ -22,7 +24,7 @@ async function main() {
   const qpz = process.argv[3].split(',').map(Number)
   const results = []
 
-  const dbs = [new MySQL(), new Postgres()]
+  const dbs = [new DOPostgres(), new MySQL(), new Postgres()]
   await Promise.all(dbs.map(db => db.initialize()))
 
   for (const qps of qpz) {

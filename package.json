@@ -11,12 +11,13 @@
   "license": "ISC",
   "dependencies": {
     "babel-watch": "^7.0.0",
+    "braces": ">=2.3.1",
     "core-js": "^3.2.1",
+    "dotenv": "^8.1.0",
     "mysql2": "^1.6.5",
     "pg": "^7.12.1",
     "regenerator-runtime": "^0.13.3",
-    "sequelize": "^5.15.0",
-    "braces": ">=2.3.1"
+    "sequelize": "^5.15.0"
   },
   "dependencyComments": {
     "braces": "Just to fix a bug"
