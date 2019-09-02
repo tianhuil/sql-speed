@@ -49,7 +49,7 @@ export class DOPostgres extends Database {
   constructor() {
     super(
       process.env["DO_POSTGRESS_URL"],
-      { db: "postgres", env: "docker" },
+      { db: "postgres", env: "do" },
       { 
         dialectOptions: {
           ssl: true
