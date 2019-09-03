@@ -14,11 +14,11 @@ source env/bin/activate
 To deactivate, just run `deactivate`.
 
 To install from `requirements.txt`, (in an activated environment), run
-```
+``` bash
 pip3 install -r requirements.txt
 ```
 
 And finally to launch the notebook (in an activated environment), run
-```
+``` bash
 jupyter notebook
 ```
